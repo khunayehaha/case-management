@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node api/cases.cjs", 
     "build": "echo 'No frontend build step required'",
-    "build:functions": "netlify-lambda build api -o netlify/functions" 
+    "build:functions": "netlify-lambda build api"  <-- ลบ '-o netlify/functions' ออก
   },
   "dependencies": {
     "firebase-admin": "^12.0.0"
