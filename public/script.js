@@ -27,13 +27,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 <td>${c.cabinet}</td>
                 <td>${c.shelf}</td>
                 <td>${c.sequence}</td>
-                <td>${c.status}</td>
-                <td>${c.user || ""}</td>
+                <td>
+                    <span class="status-label ${c.status === "อยู่ในห้องสำนวน" ? "status-in" : "status-out"}">
+                        ${c.status}
+                    </span>
+                </td>
+                <td>${c.user || "ไม่มีข้อมูลการเบิก/คืน"}</td>
                 <td>${c.date || ""}</td>
                 <td>
-                    <button class="edit-btn" data-id="${c.id}">แก้ไข</button>
-                    <button class="delete-btn" data-id="${c.id}">ลบ</button>
-                    <button class="borrow-btn" data-id="${c.id}">${c.status === "อยู่ในห้องสำนวน" ? "เบิก" : "คืน"}</button>
+                    <button class="btn-edit" data-id="${c.id}">แก้ไข</button>
+                    <button class="btn-delete" data-id="${c.id}">ลบ</button>
+                    <button class="btn-borrow" data-id="${c.id}">${c.status === "อยู่ในห้องสำนวน" ? "เบิก" : "คืน"}</button>
                 </td>
             `;
             caseList.appendChild(tr);
@@ -90,7 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const id = e.target.dataset.id;
         const c = cases.find(c => c.id == id);
 
-        if (e.target.classList.contains("edit-btn")) {
+        if (e.target.classList.contains("btn-edit")) {
             document.getElementById("caseId").value = c.id;
             document.getElementById("farmerName").value = c.name;
             document.getElementById("farmerAccountNo").value = c.account;
@@ -100,14 +104,14 @@ document.addEventListener("DOMContentLoaded", () => {
             openModal(caseModal);
         }
 
-        if (e.target.classList.contains("delete-btn")) {
+        if (e.target.classList.contains("btn-delete")) {
             if (confirm("คุณต้องการลบข้อมูลนี้ใช่หรือไม่?")) {
                 cases = cases.filter(c => c.id != id);
                 saveCases();
             }
         }
 
-        if (e.target.classList.contains("borrow-btn")) {
+        if (e.target.classList.contains("btn-borrow")) {
             currentCaseId = id;
             actionType = c.status === "อยู่ในห้องสำนวน" ? "borrow" : "return";
             document.getElementById("borrowerName").value = "";

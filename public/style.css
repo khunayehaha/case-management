@@ -1,5 +1,3 @@
-/* style.css */
-
 :root {
     --primary-color: #A084E8; /* Muted Purple */
     --primary-dark: #816BCB;
@@ -8,8 +6,8 @@
     --text-dark: #333;
     --text-light: #666;
     --border-color: #E0E0E0;
-    --success-color: #6CB16F; /* Green for In Room */
-    --borrowed-color: #E6B04D; /* Orange for Borrowed */
+    --success-color: #5cb85c; /* Green */
+    --borrowed-color: #f0ad4e; /* Orange */
     --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
 }
 
@@ -55,12 +53,12 @@ header p {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 25px;
-    flex-wrap: wrap; /* Allow wrapping on smaller screens */
-    gap: 15px; /* Spacing between items */
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
 .top-controls #addCaseBtn {
-    flex-shrink: 0; /* Don't shrink the add button */
+    flex-shrink: 0;
     padding: 12px 25px;
     font-size: 1.1em;
 }
@@ -68,8 +66,8 @@ header p {
 .search-bar {
     display: flex;
     gap: 10px;
-    flex-grow: 1; /* Allow search bar to take available space */
-    max-width: 600px; /* Limit search bar width */
+    flex-grow: 1;
+    max-width: 600px;
 }
 
 .search-bar input[type="text"] {
@@ -124,7 +122,7 @@ header p {
 
 /* Table Styles */
 .table-container {
-    overflow-x: auto; /* Enable horizontal scrolling for small screens */
+    overflow-x: auto;
     box-shadow: var(--box-shadow);
     border-radius: 8px;
     border: 1px solid var(--border-color);
@@ -133,7 +131,7 @@ header p {
 #caseTable {
     width: 100%;
     border-collapse: collapse;
-    min-width: 700px; /* Ensure table doesn't get too narrow */
+    min-width: 700px;
 }
 
 #caseTable thead th {
@@ -163,11 +161,12 @@ header p {
 
 /* Status Badges */
 .status-badge {
+    display: inline-block;
     padding: 5px 10px;
     border-radius: 4px;
     font-size: 0.9em;
     font-weight: 600;
-    white-space: nowrap; /* Prevent text wrapping */
+    white-space: nowrap;
 }
 
 .status-badge.in-room {
@@ -175,7 +174,7 @@ header p {
     color: white;
 }
 
-.status-badge.borrowed {
+.status-badge.out-room {
     background-color: var(--borrowed-color);
     color: white;
 }
@@ -192,38 +191,35 @@ header p {
     padding: 6px 12px;
     font-size: 0.85em;
     border-radius: 4px;
+    border: none;
+    cursor: pointer;
 }
 
+/* ปุ่ม แก้ไข */
 .action-buttons .edit-btn {
-    background-color: #5cb85c; /* Green */
+    background-color: #5cb85c;
     color: white;
 }
 .action-buttons .edit-btn:hover {
     background-color: #4cae4c;
 }
 
-.action-buttons .borrow-btn {
-    background-color: #f0ad4e; /* Orange */
-    color: white;
-}
-.action-buttons .borrow-btn:hover {
-    background-color: #ec971f;
-}
-
-.action-buttons .return-btn {
-    background-color: #5bc0de; /* Light Blue */
-    color: white;
-}
-.action-buttons .return-btn:hover {
-    background-color: #31b0d5;
-}
-
+/* ปุ่ม ลบ */
 .action-buttons .delete-btn {
-    background-color: #d9534f; /* Red */
+    background-color: #d9534f;
     color: white;
 }
 .action-buttons .delete-btn:hover {
     background-color: #c9302c;
+}
+
+/* ปุ่ม เบิก */
+.action-buttons .borrow-btn {
+    background-color: #f0ad4e;
+    color: white;
+}
+.action-buttons .borrow-btn:hover {
+    background-color: #ec971f;
 }
 
 .no-results-message {
@@ -235,33 +231,33 @@ header p {
 
 /* Modals (Pop-ups) */
 .modal {
-    display: none; /* Hidden by default */
-    position: fixed; /* Stay in place */
-    z-index: 1; /* Sit on top */
+    display: none;
+    position: fixed;
+    z-index: 1;
     left: 0;
     top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    overflow: auto; /* Enable scroll if needed */
-    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-    justify-content: center; /* Center horizontally */
-    align-items: center; /* Center vertically */
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+    justify-content: center;
+    align-items: center;
 }
 
 .modal.active {
-    display: flex; /* Show when active */
+    display: flex;
 }
 
 .modal-content {
     background-color: #fefefe;
-    margin: auto; /* Center the modal vertically and horizontally */
+    margin: auto;
     padding: 30px;
     border-radius: 10px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     width: 90%;
-    max-width: 500px; /* Max width for modal */
+    max-width: 500px;
     position: relative;
-    box-sizing: border-box; /* Include padding in width */
+    box-sizing: border-box;
 }
 
 .close-button {
@@ -297,7 +293,7 @@ header p {
 
 .modal form input[type="text"],
 .modal form input[type="number"] {
-    width: calc(100% - 22px); /* Full width minus padding and border */
+    width: calc(100% - 22px);
     padding: 10px;
     margin-bottom: 15px;
     border: 1px solid var(--border-color);
