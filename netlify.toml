@@ -1,10 +1,10 @@
 [build]
   publish = "public"
-  functions = "api"
-  command = "npm install" # This will install dependencies for both frontend (if any) and functions
+  functions = "netlify/functions" # กำหนดโฟลเดอร์ functions output
+  command = "npm install && npm run build:functions" # เปลี่ยน Build Command ให้เรียก script ใน package.json
 
 [functions]
   node_bundler = "esbuild"
   external_node_modules = ["firebase-admin"]
-  directory = "api"
-  included_files = ["api/cases.cjs", "package.json", "node_modules/**"]
+  # directory = "api" # ไม่ต้องระบุตรงนี้แล้ว เพราะเราจะให้ build:functions จัดการ
+  # included_files = ["api/cases.cjs", "package.json", "node_modules/**"] # ลบออกเพื่อลดความซับซ้อน

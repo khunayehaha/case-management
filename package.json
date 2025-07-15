@@ -2,18 +2,20 @@
   "name": "case-management-app",
   "version": "1.0.0",
   "description": "Case Management Application Backend",
-  "main": "api/cases.js",
+  "main": "api/cases.cjs", 
   "type": "module",
   "scripts": {
-    "start": "node api/cases.js",
+    "start": "node api/cases.cjs", 
     "build": "echo 'No frontend build step required'",
-    "build:functions": "npm install --prefix api"
+    "build:functions": "netlify-lambda build api -o netlify/functions" 
   },
   "dependencies": {
     "firebase-admin": "^12.0.0"
+  },
+  "devDependencies": { 
+    "netlify-lambda": "^2.0.16" 
   },
   "engines": {
     "node": "20"
   }
 }
-
