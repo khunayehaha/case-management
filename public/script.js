@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         ${c.status}
                     </span>
                 </td>
-                <td>${c.user || "ไม่มีข้อมูลการเบิก/คืน"}</td>
+                <td>${c.user || "ไม่มีข้อมูล"}</td>
                 <td>${c.date || ""}</td>
                 <td class="action-buttons">
                     <button class="btn-edit" data-id="${c.id}">แก้ไข</button>
@@ -111,6 +111,14 @@ document.addEventListener("DOMContentLoaded", () => {
             currentCaseId = id;
             actionType = c.status === "อยู่ในห้องสำนวน" ? "borrow" : "return";
             document.getElementById("borrowerName").value = "";
+
+            // 🆕 ตั้งค่า modal เบิก/คืน
+            document.getElementById("currentFarmerName").textContent = c.name;
+            document.getElementById("currentFarmerAccountNo").textContent = c.account;
+            document.getElementById("currentCaseStatus").textContent = c.status;
+            document.getElementById("borrowReturnModalTitle").textContent =
+                actionType === "borrow" ? "เบิกแฟ้มคดี" : "คืนแฟ้มคดี";
+
             openModal(borrowReturnModal);
         }
     });
@@ -142,17 +150,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
     borrowReturnForm.addEventListener("submit", e => {
         e.preventDefault();
-        const user = document.getElementById("borrowerName").value;
+        const user = document.getElementById("borrowerName").value.trim();
         const c = cases.find(c => c.id == currentCaseId);
+
+        if (!user) {
+            alert("กรุณากรอกชื่อผู้เบิก/ผู้คืน");
+            return;
+        }
+
+        const now = new Date();
+        const dateTime = now.toLocaleDateString("th-TH", { day: '2-digit', month: '2-digit', year: 'numeric' }) +
+                         " " + now.toLocaleTimeString("th-TH", { hour: '2-digit', minute: '2-digit' });
 
         if (actionType === "borrow") {
             c.status = "ถูกเบิกออกไป";
             c.user = user;
-            c.date = new Date().toLocaleDateString("th-TH");
+            c.date = dateTime;
         } else {
             c.status = "อยู่ในห้องสำนวน";
-            c.user = "";
-            c.date = "";
+            c.user = user;  // บันทึกชื่อผู้คืน
+            c.date = dateTime;
         }
 
         saveCases();
