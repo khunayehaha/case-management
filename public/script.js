@@ -10,7 +10,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let cases = JSON.parse(localStorage.getItem("cases")) || [];
     let currentCaseId = null;
-    let actionType = ""; // "borrow" หรือ "return"
+    let actionType = ""; 
+    let pendingAction = ""; 
 
     function saveCases() {
         localStorage.setItem("cases", JSON.stringify(cases));
@@ -34,7 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 </td>
                 <td>${c.user || "ไม่มีข้อมูลการเบิก/คืน"}</td>
                 <td>${c.date || ""}</td>
-                <td>
+                <td class="action-buttons">
                     <button class="btn-edit" data-id="${c.id}">แก้ไข</button>
                     <button class="btn-delete" data-id="${c.id}">ลบ</button>
                     <button class="btn-borrow" data-id="${c.id}">${c.status === "อยู่ในห้องสำนวน" ? "เบิก" : "คืน"}</button>
@@ -95,20 +96,15 @@ document.addEventListener("DOMContentLoaded", () => {
         const c = cases.find(c => c.id == id);
 
         if (e.target.classList.contains("btn-edit")) {
-            document.getElementById("caseId").value = c.id;
-            document.getElementById("farmerName").value = c.name;
-            document.getElementById("farmerAccountNo").value = c.account;
-            document.getElementById("cabinetNo").value = c.cabinet;
-            document.getElementById("shelfNo").value = c.shelf;
-            document.getElementById("sequenceNo").value = c.sequence;
-            openModal(caseModal);
+            currentCaseId = id;
+            pendingAction = "edit";
+            openModal(adminPasswordModal);
         }
 
         if (e.target.classList.contains("btn-delete")) {
-            if (confirm("คุณต้องการลบข้อมูลนี้ใช่หรือไม่?")) {
-                cases = cases.filter(c => c.id != id);
-                saveCases();
-            }
+            currentCaseId = id;
+            pendingAction = "delete";
+            openModal(adminPasswordModal);
         }
 
         if (e.target.classList.contains("btn-borrow")) {
@@ -116,6 +112,31 @@ document.addEventListener("DOMContentLoaded", () => {
             actionType = c.status === "อยู่ในห้องสำนวน" ? "borrow" : "return";
             document.getElementById("borrowerName").value = "";
             openModal(borrowReturnModal);
+        }
+    });
+
+    adminPasswordForm.addEventListener("submit", e => {
+        e.preventDefault();
+        const password = document.getElementById("adminPasswordInput").value;
+        if (password === "lawsugar6") {
+            if (pendingAction === "edit") {
+                const c = cases.find(c => c.id == currentCaseId);
+                document.getElementById("caseId").value = c.id;
+                document.getElementById("farmerName").value = c.name;
+                document.getElementById("farmerAccountNo").value = c.account;
+                document.getElementById("cabinetNo").value = c.cabinet;
+                document.getElementById("shelfNo").value = c.shelf;
+                document.getElementById("sequenceNo").value = c.sequence;
+                openModal(caseModal);
+            } else if (pendingAction === "delete") {
+                if (confirm("คุณต้องการลบข้อมูลนี้ใช่หรือไม่?")) {
+                    cases = cases.filter(c => c.id != currentCaseId);
+                    saveCases();
+                }
+            }
+            closeModal(adminPasswordModal);
+        } else {
+            alert("รหัสผ่านไม่ถูกต้อง");
         }
     });
 
@@ -136,16 +157,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         saveCases();
         closeModal(borrowReturnModal);
-    });
-
-    adminPasswordForm.addEventListener("submit", e => {
-        e.preventDefault();
-        const password = document.getElementById("adminPasswordInput").value;
-        if (password === "lawsugar6") {
-            closeModal(adminPasswordModal);
-        } else {
-            alert("รหัสผ่านไม่ถูกต้อง");
-        }
     });
 
     renderCases();

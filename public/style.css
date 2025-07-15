@@ -1,13 +1,13 @@
 :root {
-    --primary-color: #A084E8; /* Muted Purple */
+    --primary-color: #A084E8;
     --primary-dark: #816BCB;
-    --secondary-color: #DCD6F7; /* Lighter Purple */
-    --background-light: #F8F8F8; /* Off-white */
+    --secondary-color: #DCD6F7;
+    --background-light: #F8F8F8;
     --text-dark: #333;
     --text-light: #666;
     --border-color: #E0E0E0;
-    --success-color: #5cb85c; /* Green */
-    --borrowed-color: #f0ad4e; /* Orange */
+    --success-color: #5cb85c;
+    --borrowed-color: #f0ad4e;
     --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
 }
 
@@ -78,7 +78,6 @@ header p {
     font-size: 1em;
 }
 
-/* Buttons */
 .primary-button, .secondary-button {
     padding: 10px 20px;
     border: none;
@@ -120,7 +119,6 @@ header p {
     background-color: #e0e0e0;
 }
 
-/* Table Styles */
 .table-container {
     overflow-x: auto;
     box-shadow: var(--box-shadow);
@@ -159,7 +157,6 @@ header p {
     vertical-align: middle;
 }
 
-/* Status Badges */
 .status-badge {
     display: inline-block;
     padding: 5px 10px;
@@ -179,7 +176,7 @@ header p {
     color: white;
 }
 
-/* Action Buttons in Table */
+/* ✅ ปุ่มในตาราง */
 .action-buttons {
     display: flex;
     gap: 8px;
@@ -188,38 +185,39 @@ header p {
 }
 
 .action-buttons button {
-    padding: 6px 12px;
-    font-size: 0.85em;
+    padding: 8px 16px;
+    font-size: 1em;
     border-radius: 4px;
     border: none;
     cursor: pointer;
+    font-weight: bold;
 }
 
-/* ปุ่ม แก้ไข */
-.action-buttons .edit-btn {
-    background-color: #5cb85c;
-    color: white;
+/* ปุ่ม แก้ไข (เหลือง) */
+.action-buttons .btn-edit {
+    background-color: #ffc107;
+    color: black;
 }
-.action-buttons .edit-btn:hover {
-    background-color: #4cae4c;
-}
-
-/* ปุ่ม ลบ */
-.action-buttons .delete-btn {
-    background-color: #d9534f;
-    color: white;
-}
-.action-buttons .delete-btn:hover {
-    background-color: #c9302c;
+.action-buttons .btn-edit:hover {
+    background-color: #e0a800;
 }
 
-/* ปุ่ม เบิก */
-.action-buttons .borrow-btn {
-    background-color: #f0ad4e;
+/* ปุ่ม ลบ (แดง) */
+.action-buttons .btn-delete {
+    background-color: #dc3545;
     color: white;
 }
-.action-buttons .borrow-btn:hover {
-    background-color: #ec971f;
+.action-buttons .btn-delete:hover {
+    background-color: #c82333;
+}
+
+/* ปุ่ม เบิก/คืน (เขียว) */
+.action-buttons .btn-borrow {
+    background-color: #28a745;
+    color: white;
+}
+.action-buttons .btn-borrow:hover {
+    background-color: #218838;
 }
 
 .no-results-message {
@@ -229,7 +227,6 @@ header p {
     font-size: 1.1em;
 }
 
-/* Modals (Pop-ups) */
 .modal {
     display: none;
     position: fixed;
@@ -312,7 +309,7 @@ header p {
     color: var(--primary-dark);
 }
 
-/* Responsive adjustments */
+/* Responsive */
 @media (max-width: 768px) {
     .top-controls {
         flex-direction: column;
