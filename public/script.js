@@ -7,11 +7,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const borrowReturnForm = document.getElementById("borrowReturnForm");
     const adminPasswordForm = document.getElementById("adminPasswordForm");
     const caseList = document.getElementById("caseList");
-    const noResults = document.getElementById("noResults");
 
     let cases = JSON.parse(localStorage.getItem("cases")) || [];
     let currentCaseId = null;
-    let actionType = ""; // "edit", "borrow", "return"
+    let actionType = ""; // "borrow" หรือ "return"
 
     function saveCases() {
         localStorage.setItem("cases", JSON.stringify(cases));
@@ -20,12 +19,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function renderCases() {
         caseList.innerHTML = "";
-        if (cases.length === 0) {
-            noResults.style.display = "block";
-            return;
-        }
-        noResults.style.display = "none";
-
         cases.forEach(c => {
             const tr = document.createElement("tr");
             tr.innerHTML = `
@@ -34,12 +27,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 <td>${c.cabinet}</td>
                 <td>${c.shelf}</td>
                 <td>${c.sequence}</td>
-                <td>${c.status === 1 ? 'In Room' : 'Borrowed'}</td>
-                <td>${c.user || '-'}</td>
-                <td>${c.date || '-'}</td>
+                <td>${c.status}</td>
+                <td>${c.user || ""}</td>
+                <td>${c.date || ""}</td>
                 <td>
                     <button class="edit-btn" data-id="${c.id}">แก้ไข</button>
-                    <button class="borrow-btn" data-id="${c.id}">${c.status === 1 ? 'เบิก' : 'คืน'}</button>
+                    <button class="borrow-btn" data-id="${c.id}">${c.status === "อยู่ในห้องสำนวน" ? "เบิก" : "คืน"}</button>
                 </td>
             `;
             caseList.appendChild(tr);
@@ -54,26 +47,19 @@ document.addEventListener("DOMContentLoaded", () => {
         modal.style.display = "none";
     }
 
+    // ปิด modal ทุกตัวเมื่อกดยกเลิกหรือปิด
+    document.querySelectorAll(".cancel-button, .close-button").forEach(btn => {
+        btn.addEventListener("click", () => {
+            closeModal(caseModal);
+            closeModal(borrowReturnModal);
+            closeModal(adminPasswordModal);
+        });
+    });
+
     addCaseBtn.addEventListener("click", () => {
         caseForm.reset();
         document.getElementById("caseId").value = "";
         openModal(caseModal);
-    });
-
-    document.querySelectorAll(".close-button").forEach(btn => {
-        btn.addEventListener("click", () => {
-            closeModal(caseModal);
-            closeModal(borrowReturnModal);
-            closeModal(adminPasswordModal);
-        });
-    });
-
-    document.querySelectorAll(".cancel-button").forEach(btn => {
-        btn.addEventListener("click", () => {
-            closeModal(caseModal);
-            closeModal(borrowReturnModal);
-            closeModal(adminPasswordModal);
-        });
     });
 
     caseForm.addEventListener("submit", e => {
@@ -86,7 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
             cabinet: document.getElementById("cabinetNo").value,
             shelf: document.getElementById("shelfNo").value,
             sequence: document.getElementById("sequenceNo").value,
-            status: 1,
+            status: "อยู่ในห้องสำนวน",
             user: "",
             date: ""
         };
@@ -116,11 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (e.target.classList.contains("borrow-btn")) {
             currentCaseId = id;
-            actionType = c.status === 1 ? "borrow" : "return";
-            document.getElementById("borrowReturnModalTitle").textContent = actionType === "borrow" ? "เบิกแฟ้มคดี" : "คืนแฟ้มคดี";
-            document.getElementById("currentFarmerName").textContent = c.name;
-            document.getElementById("currentFarmerAccountNo").textContent = c.account;
-            document.getElementById("currentCaseStatus").textContent = c.status === 1 ? "In Room" : "Borrowed";
+            actionType = c.status === "อยู่ในห้องสำนวน" ? "borrow" : "return";
             document.getElementById("borrowerName").value = "";
             openModal(borrowReturnModal);
         }
@@ -130,9 +112,17 @@ document.addEventListener("DOMContentLoaded", () => {
         e.preventDefault();
         const user = document.getElementById("borrowerName").value;
         const c = cases.find(c => c.id == currentCaseId);
-        c.status = actionType === "borrow" ? 0 : 1;
-        c.user = user;
-        c.date = new Date().toLocaleDateString("th-TH");
+
+        if (actionType === "borrow") {
+            c.status = "ถูกเบิกออกไป";
+            c.user = user;
+            c.date = new Date().toLocaleDateString("th-TH");
+        } else {
+            c.status = "อยู่ในห้องสำนวน";
+            c.user = "";
+            c.date = "";
+        }
+
         saveCases();
         closeModal(borrowReturnModal);
     });
@@ -140,8 +130,8 @@ document.addEventListener("DOMContentLoaded", () => {
     adminPasswordForm.addEventListener("submit", e => {
         e.preventDefault();
         const password = document.getElementById("adminPasswordInput").value;
-        if (password === "admin123") {
-            // ทำสิ่งที่ต้องการเมื่อรหัสผ่านถูกต้อง
+        if (password === "lawsugar6") {
+            // ทำสิ่งที่ต้องการเมื่อรหัสถูกต้อง
             closeModal(adminPasswordModal);
         } else {
             alert("รหัสผ่านไม่ถูกต้อง");
