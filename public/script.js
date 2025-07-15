@@ -32,6 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 <td>${c.date || ""}</td>
                 <td>
                     <button class="edit-btn" data-id="${c.id}">แก้ไข</button>
+                    <button class="delete-btn" data-id="${c.id}">ลบ</button>
                     <button class="borrow-btn" data-id="${c.id}">${c.status === "อยู่ในห้องสำนวน" ? "เบิก" : "คืน"}</button>
                 </td>
             `;
@@ -47,7 +48,6 @@ document.addEventListener("DOMContentLoaded", () => {
         modal.style.display = "none";
     }
 
-    // ปิด modal ทุกตัวเมื่อกดยกเลิกหรือปิด
     document.querySelectorAll(".cancel-button, .close-button").forEach(btn => {
         btn.addEventListener("click", () => {
             closeModal(caseModal);
@@ -100,6 +100,13 @@ document.addEventListener("DOMContentLoaded", () => {
             openModal(caseModal);
         }
 
+        if (e.target.classList.contains("delete-btn")) {
+            if (confirm("คุณต้องการลบข้อมูลนี้ใช่หรือไม่?")) {
+                cases = cases.filter(c => c.id != id);
+                saveCases();
+            }
+        }
+
         if (e.target.classList.contains("borrow-btn")) {
             currentCaseId = id;
             actionType = c.status === "อยู่ในห้องสำนวน" ? "borrow" : "return";
@@ -131,7 +138,6 @@ document.addEventListener("DOMContentLoaded", () => {
         e.preventDefault();
         const password = document.getElementById("adminPasswordInput").value;
         if (password === "lawsugar6") {
-            // ทำสิ่งที่ต้องการเมื่อรหัสถูกต้อง
             closeModal(adminPasswordModal);
         } else {
             alert("รหัสผ่านไม่ถูกต้อง");
