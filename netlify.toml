@@ -6,4 +6,4 @@
 [functions]
   node_bundler = "esbuild" # Use esbuild for faster and more efficient bundling
   external_node_modules = ["firebase-admin"] # Explicitly tell Netlify to bundle firebase-admin
-  node_version = "20" # Specify Node.js version for functions
+
