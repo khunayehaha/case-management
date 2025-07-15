@@ -1,0 +1,12 @@
+{
+  "name": "case-management-app",
+  "version": "1.0.0",
+  "description": "Case Management Application Backend",
+  "main": "api/cases.js",
+  "scripts": {
+    "start": "node api/cases.js"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.0.0"
+  }
+}
