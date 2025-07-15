@@ -1,5 +1,5 @@
-import { 
-    collection, addDoc, doc, setDoc, deleteDoc, onSnapshot, getFirestore, getDoc 
+import {
+    collection, addDoc, doc, setDoc, deleteDoc, onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 
@@ -29,11 +29,13 @@ document.addEventListener("DOMContentLoaded", () => {
     let currentCaseId = null;
     let actionType = "";
     let pendingAction = "";
+    let cachedCases = {}; // 🆕 แคช
 
     const casesRef = collection(db, "cases");
 
     function renderCase(docSnap) {
         const c = docSnap.data();
+        cachedCases[docSnap.id] = c;
         const tr = document.createElement("tr");
         tr.setAttribute("data-id", docSnap.id);
         tr.innerHTML = `
@@ -60,6 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     onSnapshot(casesRef, snapshot => {
         caseList.innerHTML = "";
+        cachedCases = {};
         snapshot.forEach(docSnap => {
             const tr = renderCase(docSnap);
             caseList.appendChild(tr);
@@ -74,11 +77,18 @@ document.addEventListener("DOMContentLoaded", () => {
         modal.style.display = "none";
     }
 
+    function resetState() {
+        currentCaseId = null;
+        pendingAction = "";
+        actionType = "";
+    }
+
     document.querySelectorAll(".cancel-button, .close-button").forEach(btn => {
         btn.addEventListener("click", () => {
             closeModal(caseModal);
             closeModal(borrowReturnModal);
             closeModal(adminPasswordModal);
+            resetState();
         });
     });
 
@@ -110,11 +120,12 @@ document.addEventListener("DOMContentLoaded", () => {
         closeModal(caseModal);
     });
 
-    caseList.addEventListener("click", async e => {
+    caseList.addEventListener("click", e => {
         const tr = e.target.closest("tr");
+        if (!tr) return;
         const id = tr.getAttribute("data-id");
-        const cSnap = await getDoc(doc(casesRef, id));
-        const c = cSnap.data();
+        const c = cachedCases[id];
+        if (!c) return;
 
         if (e.target.classList.contains("btn-edit")) {
             currentCaseId = id;
@@ -148,8 +159,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const password = document.getElementById("adminPasswordInput").value;
         if (password === "lawsugar6") {
             if (pendingAction === "edit") {
-                const cSnap = await getDoc(doc(casesRef, currentCaseId));
-                const c = cSnap.data();
+                const c = cachedCases[currentCaseId];
                 document.getElementById("caseId").value = currentCaseId;
                 document.getElementById("farmerName").value = c.name;
                 document.getElementById("farmerAccountNo").value = c.account;
@@ -163,6 +173,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
             closeModal(adminPasswordModal);
+            resetState();
         } else {
             alert("รหัสผ่านไม่ถูกต้อง");
         }
@@ -171,27 +182,24 @@ document.addEventListener("DOMContentLoaded", () => {
     borrowReturnForm.addEventListener("submit", async e => {
         e.preventDefault();
         const user = document.getElementById("borrowerName").value.trim();
-        const now = new Date();
-        const dateTime = now.toLocaleDateString("th-TH", { day: '2-digit', month: '2-digit', year: 'numeric' }) +
-                         " " + now.toLocaleTimeString("th-TH", { hour: '2-digit', minute: '2-digit' });
-
-        const cSnap = await getDoc(doc(casesRef, currentCaseId));
-        const c = cSnap.data();
-
         if (!user) {
             alert("กรุณากรอกชื่อผู้เบิก/ผู้คืน");
             return;
         }
 
-        if (actionType === "borrow") {
-            c.status = "ถูกเบิกออกไป";
-        } else {
-            c.status = "อยู่ในห้องสำนวน";
-        }
+        const now = new Date();
+        const dateTime = now.toLocaleDateString("th-TH", { day: '2-digit', month: '2-digit', year: 'numeric' }) +
+            " " + now.toLocaleTimeString("th-TH", { hour: '2-digit', minute: '2-digit' });
+
+        const c = cachedCases[currentCaseId];
+        if (!c) return;
+
+        c.status = actionType === "borrow" ? "ถูกเบิกออกไป" : "อยู่ในห้องสำนวน";
         c.user = user;
         c.date = dateTime;
 
         await setDoc(doc(casesRef, currentCaseId), c);
         closeModal(borrowReturnModal);
+        resetState();
     });
 });
