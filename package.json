@@ -3,10 +3,16 @@
   "version": "1.0.0",
   "description": "Case Management Application Backend",
   "main": "api/cases.js",
+  "type": "module",  <-- เพิ่มบรรทัดนี้
   "scripts": {
-    "start": "node api/cases.js"
+    "start": "node api/cases.js",
+    "build": "echo 'No frontend build step required'",
+    "build:functions": "npm install --prefix api" <-- เพิ่มบรรทัดนี้
   },
   "dependencies": {
     "firebase-admin": "^12.0.0"
+  },
+  "engines": {     <-- เพิ่มส่วนนี้
+    "node": "20"   <-- ระบุเวอร์ชัน Node.js
   }
 }
