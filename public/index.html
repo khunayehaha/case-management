@@ -41,7 +41,7 @@
                     </tr>
                 </thead>
                 <tbody id="caseList">
-                    </tbody>
+                </tbody>
             </table>
             <p id="noResults" class="no-results-message" style="display: none;">ไม่พบข้อมูลแฟ้มคดี</p>
         </div>
@@ -98,7 +98,6 @@
             </div>
         </div>
 
-        <!-- Admin Password Modal - NEWLY ADDED -->
         <div id="adminPasswordModal" class="modal">
             <div class="modal-content">
                 <span class="close-button">&times;</span>
@@ -113,9 +112,29 @@
                 </form>
             </div>
         </div>
-        <!----------------------------------------->
 
     </main>
+
+    <!-- Firebase Config -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD2Dr6eWDBn1NQkymaiBPWAtC7wHc0L2nQ",
+            authDomain: "sugarlaw1.firebaseapp.com",
+            projectId: "sugarlaw1",
+            storageBucket: "sugarlaw1.appspot.com",
+            messagingSenderId: "1044664723794",
+            appId: "1:1044664723794:web:edfaa67d9452d2618bb28b",
+            measurementId: "G-TBMSM6ZT8R"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.firebaseDB = db;
+    </script>
 
     <script src="script.js"></script>
 </body>

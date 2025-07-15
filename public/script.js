@@ -1,3 +1,21 @@
+import { 
+    collection, addDoc, doc, setDoc, deleteDoc, onSnapshot, getFirestore, getDoc 
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyD2Dr6eWDBn1NQkymaiBPWAtC7wHc0L2nQ",
+    authDomain: "sugarlaw1.firebaseapp.com",
+    projectId: "sugarlaw1",
+    storageBucket: "sugarlaw1.appspot.com",
+    messagingSenderId: "1044664723794",
+    appId: "1:1044664723794:web:edfaa67d9452d2618bb28b",
+    measurementId: "G-TBMSM6ZT8R"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
 document.addEventListener("DOMContentLoaded", () => {
     const addCaseBtn = document.getElementById("addCaseBtn");
     const caseModal = document.getElementById("caseModal");
@@ -8,42 +26,45 @@ document.addEventListener("DOMContentLoaded", () => {
     const adminPasswordForm = document.getElementById("adminPasswordForm");
     const caseList = document.getElementById("caseList");
 
-    let cases = JSON.parse(localStorage.getItem("cases")) || [];
     let currentCaseId = null;
-    let actionType = ""; 
-    let pendingAction = ""; 
+    let actionType = "";
+    let pendingAction = "";
 
-    function saveCases() {
-        localStorage.setItem("cases", JSON.stringify(cases));
-        renderCases();
+    const casesRef = collection(db, "cases");
+
+    function renderCase(docSnap) {
+        const c = docSnap.data();
+        const tr = document.createElement("tr");
+        tr.setAttribute("data-id", docSnap.id);
+        tr.innerHTML = `
+            <td>${c.name}</td>
+            <td>${c.account}</td>
+            <td>${c.cabinet}</td>
+            <td>${c.shelf}</td>
+            <td>${c.sequence}</td>
+            <td>
+                <span class="status-badge ${c.status === "อยู่ในห้องสำนวน" ? "in-room" : "out-room"}">
+                    ${c.status}
+                </span>
+            </td>
+            <td>${c.user || "ไม่มีข้อมูล"}</td>
+            <td>${c.date || ""}</td>
+            <td class="action-buttons">
+                <button class="btn-edit">แก้ไข</button>
+                <button class="btn-delete">ลบ</button>
+                <button class="btn-borrow">${c.status === "อยู่ในห้องสำนวน" ? "เบิก" : "คืน"}</button>
+            </td>
+        `;
+        return tr;
     }
 
-    function renderCases() {
+    onSnapshot(casesRef, snapshot => {
         caseList.innerHTML = "";
-        cases.forEach(c => {
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
-                <td>${c.name}</td>
-                <td>${c.account}</td>
-                <td>${c.cabinet}</td>
-                <td>${c.shelf}</td>
-                <td>${c.sequence}</td>
-                <td>
-                    <span class="status-label ${c.status === "อยู่ในห้องสำนวน" ? "status-in" : "status-out"}">
-                        ${c.status}
-                    </span>
-                </td>
-                <td>${c.user || "ไม่มีข้อมูล"}</td>
-                <td>${c.date || ""}</td>
-                <td class="action-buttons">
-                    <button class="btn-edit" data-id="${c.id}">แก้ไข</button>
-                    <button class="btn-delete" data-id="${c.id}">ลบ</button>
-                    <button class="btn-borrow" data-id="${c.id}">${c.status === "อยู่ในห้องสำนวน" ? "เบิก" : "คืน"}</button>
-                </td>
-            `;
+        snapshot.forEach(docSnap => {
+            const tr = renderCase(docSnap);
             caseList.appendChild(tr);
         });
-    }
+    });
 
     function openModal(modal) {
         modal.style.display = "block";
@@ -67,11 +88,10 @@ document.addEventListener("DOMContentLoaded", () => {
         openModal(caseModal);
     });
 
-    caseForm.addEventListener("submit", e => {
+    caseForm.addEventListener("submit", async e => {
         e.preventDefault();
         const id = document.getElementById("caseId").value;
         const newCase = {
-            id: id || Date.now(),
             name: document.getElementById("farmerName").value,
             account: document.getElementById("farmerAccountNo").value,
             cabinet: document.getElementById("cabinetNo").value,
@@ -83,17 +103,18 @@ document.addEventListener("DOMContentLoaded", () => {
         };
 
         if (id) {
-            cases = cases.map(c => c.id == id ? newCase : c);
+            await setDoc(doc(casesRef, id), newCase);
         } else {
-            cases.push(newCase);
+            await addDoc(casesRef, newCase);
         }
-        saveCases();
         closeModal(caseModal);
     });
 
-    caseList.addEventListener("click", e => {
-        const id = e.target.dataset.id;
-        const c = cases.find(c => c.id == id);
+    caseList.addEventListener("click", async e => {
+        const tr = e.target.closest("tr");
+        const id = tr.getAttribute("data-id");
+        const cSnap = await getDoc(doc(casesRef, id));
+        const c = cSnap.data();
 
         if (e.target.classList.contains("btn-edit")) {
             currentCaseId = id;
@@ -112,7 +133,6 @@ document.addEventListener("DOMContentLoaded", () => {
             actionType = c.status === "อยู่ในห้องสำนวน" ? "borrow" : "return";
             document.getElementById("borrowerName").value = "";
 
-            // 🆕 ตั้งค่า modal เบิก/คืน
             document.getElementById("currentFarmerName").textContent = c.name;
             document.getElementById("currentFarmerAccountNo").textContent = c.account;
             document.getElementById("currentCaseStatus").textContent = c.status;
@@ -123,13 +143,14 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    adminPasswordForm.addEventListener("submit", e => {
+    adminPasswordForm.addEventListener("submit", async e => {
         e.preventDefault();
         const password = document.getElementById("adminPasswordInput").value;
         if (password === "lawsugar6") {
             if (pendingAction === "edit") {
-                const c = cases.find(c => c.id == currentCaseId);
-                document.getElementById("caseId").value = c.id;
+                const cSnap = await getDoc(doc(casesRef, currentCaseId));
+                const c = cSnap.data();
+                document.getElementById("caseId").value = currentCaseId;
                 document.getElementById("farmerName").value = c.name;
                 document.getElementById("farmerAccountNo").value = c.account;
                 document.getElementById("cabinetNo").value = c.cabinet;
@@ -138,8 +159,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 openModal(caseModal);
             } else if (pendingAction === "delete") {
                 if (confirm("คุณต้องการลบข้อมูลนี้ใช่หรือไม่?")) {
-                    cases = cases.filter(c => c.id != currentCaseId);
-                    saveCases();
+                    await deleteDoc(doc(casesRef, currentCaseId));
                 }
             }
             closeModal(adminPasswordModal);
@@ -148,33 +168,30 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    borrowReturnForm.addEventListener("submit", e => {
+    borrowReturnForm.addEventListener("submit", async e => {
         e.preventDefault();
         const user = document.getElementById("borrowerName").value.trim();
-        const c = cases.find(c => c.id == currentCaseId);
+        const now = new Date();
+        const dateTime = now.toLocaleDateString("th-TH", { day: '2-digit', month: '2-digit', year: 'numeric' }) +
+                         " " + now.toLocaleTimeString("th-TH", { hour: '2-digit', minute: '2-digit' });
+
+        const cSnap = await getDoc(doc(casesRef, currentCaseId));
+        const c = cSnap.data();
 
         if (!user) {
             alert("กรุณากรอกชื่อผู้เบิก/ผู้คืน");
             return;
         }
 
-        const now = new Date();
-        const dateTime = now.toLocaleDateString("th-TH", { day: '2-digit', month: '2-digit', year: 'numeric' }) +
-                         " " + now.toLocaleTimeString("th-TH", { hour: '2-digit', minute: '2-digit' });
-
         if (actionType === "borrow") {
             c.status = "ถูกเบิกออกไป";
-            c.user = user;
-            c.date = dateTime;
         } else {
             c.status = "อยู่ในห้องสำนวน";
-            c.user = user;  // บันทึกชื่อผู้คืน
-            c.date = dateTime;
         }
+        c.user = user;
+        c.date = dateTime;
 
-        saveCases();
+        await setDoc(doc(casesRef, currentCaseId), c);
         closeModal(borrowReturnModal);
     });
-
-    renderCases();
 });
