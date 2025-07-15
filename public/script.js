@@ -1,129 +1,152 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const adminPasswordModal = document.getElementById('adminPasswordModal');
-    const borrowReturnModal = document.getElementById('borrowReturnModal');
-    const adminPasswordInput = document.getElementById('adminPassword');
-    const borrowerNameInput = document.getElementById('borrowerName');
-    const adminPasswordSubmit = document.getElementById('adminPasswordSubmit');
-    const borrowReturnSubmit = document.getElementById('borrowReturnSubmit');
+    const addCaseBtn = document.getElementById("addCaseBtn");
+    const caseModal = document.getElementById("caseModal");
+    const borrowReturnModal = document.getElementById("borrowReturnModal");
+    const adminPasswordModal = document.getElementById("adminPasswordModal");
+    const caseForm = document.getElementById("caseForm");
+    const borrowReturnForm = document.getElementById("borrowReturnForm");
+    const adminPasswordForm = document.getElementById("adminPasswordForm");
+    const caseList = document.getElementById("caseList");
+    const noResults = document.getElementById("noResults");
 
-    let currentAction = null;
+    let cases = JSON.parse(localStorage.getItem("cases")) || [];
     let currentCaseId = null;
+    let actionType = ""; // "edit", "borrow", "return"
 
-    fetchCases();
-
-    function fetchCases() {
-        fetch('/.netlify/functions/cases')
-            .then(res => res.json())
-            .then(data => renderCases(data))
-            .catch(err => console.error('Fetch cases error:', err));
+    function saveCases() {
+        localStorage.setItem("cases", JSON.stringify(cases));
+        renderCases();
     }
 
-    function renderCases(cases) {
-        const tbody = document.querySelector("#caseTable tbody");
-        tbody.innerHTML = '';
+    function renderCases() {
+        caseList.innerHTML = "";
+        if (cases.length === 0) {
+            noResults.style.display = "block";
+            return;
+        }
+        noResults.style.display = "none";
+
         cases.forEach(c => {
-            const tr = document.createElement('tr');
+            const tr = document.createElement("tr");
             tr.innerHTML = `
-                <td>${c.id}</td>
-                <td>${c.farmer_name}</td>
-                <td>${c.farmer_account_no}</td>
-                <td>${c.cabinet_no}</td>
-                <td>${c.shelf_no}</td>
-                <td>${c.sequence_no}</td>
-                <td>${c.status}</td>
-                <td>${c.borrowed_by_user_name || '-'}</td>
+                <td>${c.name}</td>
+                <td>${c.account}</td>
+                <td>${c.cabinet}</td>
+                <td>${c.shelf}</td>
+                <td>${c.sequence}</td>
+                <td>${c.status === 1 ? 'In Room' : 'Borrowed'}</td>
+                <td>${c.user || '-'}</td>
+                <td>${c.date || '-'}</td>
                 <td>
-                    <button class="action-btn edit-btn" data-id="${c.id}">แก้ไข</button>
-                    <button class="action-btn borrow-btn" data-id="${c.id}" ${c.status === 'Borrowed' ? 'disabled' : ''}>เบิก</button>
+                    <button class="edit-btn" data-id="${c.id}">แก้ไข</button>
+                    <button class="borrow-btn" data-id="${c.id}">${c.status === 1 ? 'เบิก' : 'คืน'}</button>
                 </td>
             `;
-            tbody.appendChild(tr);
-        });
-
-        document.querySelectorAll('.edit-btn').forEach(btn => {
-            btn.addEventListener('click', () => openAdminModal('edit', btn.dataset.id));
-        });
-
-        document.querySelectorAll('.borrow-btn').forEach(btn => {
-            btn.addEventListener('click', () => openBorrowModal(btn.dataset.id));
+            caseList.appendChild(tr);
         });
     }
 
-    function openAdminModal(action, caseId) {
-        currentAction = action;
-        currentCaseId = caseId;
-        adminPasswordInput.value = '';
-        adminPasswordModal.classList.add('active');
+    function openModal(modal) {
+        modal.style.display = "block";
     }
 
-    function openBorrowModal(caseId) {
-        currentCaseId = caseId;
-        borrowerNameInput.value = '';
-        borrowReturnModal.classList.add('active');
+    function closeModal(modal) {
+        modal.style.display = "none";
     }
 
-    adminPasswordSubmit.addEventListener('click', () => {
-        const password = adminPasswordInput.value.trim();
-        if (!password) {
-            alert('กรุณากรอกรหัสผ่าน');
-            return;
+    addCaseBtn.addEventListener("click", () => {
+        caseForm.reset();
+        document.getElementById("caseId").value = "";
+        openModal(caseModal);
+    });
+
+    document.querySelectorAll(".close-button").forEach(btn => {
+        btn.addEventListener("click", () => {
+            closeModal(caseModal);
+            closeModal(borrowReturnModal);
+            closeModal(adminPasswordModal);
+        });
+    });
+
+    document.querySelectorAll(".cancel-button").forEach(btn => {
+        btn.addEventListener("click", () => {
+            closeModal(caseModal);
+            closeModal(borrowReturnModal);
+            closeModal(adminPasswordModal);
+        });
+    });
+
+    caseForm.addEventListener("submit", e => {
+        e.preventDefault();
+        const id = document.getElementById("caseId").value;
+        const newCase = {
+            id: id || Date.now(),
+            name: document.getElementById("farmerName").value,
+            account: document.getElementById("farmerAccountNo").value,
+            cabinet: document.getElementById("cabinetNo").value,
+            shelf: document.getElementById("shelfNo").value,
+            sequence: document.getElementById("sequenceNo").value,
+            status: 1,
+            user: "",
+            date: ""
+        };
+
+        if (id) {
+            cases = cases.map(c => c.id == id ? newCase : c);
+        } else {
+            cases.push(newCase);
+        }
+        saveCases();
+        closeModal(caseModal);
+    });
+
+    caseList.addEventListener("click", e => {
+        const id = e.target.dataset.id;
+        const c = cases.find(c => c.id == id);
+
+        if (e.target.classList.contains("edit-btn")) {
+            document.getElementById("caseId").value = c.id;
+            document.getElementById("farmerName").value = c.name;
+            document.getElementById("farmerAccountNo").value = c.account;
+            document.getElementById("cabinetNo").value = c.cabinet;
+            document.getElementById("shelfNo").value = c.shelf;
+            document.getElementById("sequenceNo").value = c.sequence;
+            openModal(caseModal);
         }
 
-        fetch(`/.netlify/functions/cases/${currentCaseId}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'x-admin-password': password
-            },
-            body: JSON.stringify({ last_updated_by_user_name: "Admin" })
-        })
-            .then(res => res.json())
-            .then(() => {
-                adminPasswordModal.classList.remove('active');
-                fetchCases();
-            })
-            .catch(err => {
-                console.error(err);
-                alert('เกิดข้อผิดพลาด');
-                adminPasswordModal.classList.remove('active');
-            });
-    });
-
-    borrowReturnSubmit.addEventListener('click', () => {
-        const borrowerName = borrowerNameInput.value.trim();
-        if (!borrowerName) {
-            alert('กรุณากรอกชื่อผู้เบิก');
-            return;
+        if (e.target.classList.contains("borrow-btn")) {
+            currentCaseId = id;
+            actionType = c.status === 1 ? "borrow" : "return";
+            document.getElementById("borrowReturnModalTitle").textContent = actionType === "borrow" ? "เบิกแฟ้มคดี" : "คืนแฟ้มคดี";
+            document.getElementById("currentFarmerName").textContent = c.name;
+            document.getElementById("currentFarmerAccountNo").textContent = c.account;
+            document.getElementById("currentCaseStatus").textContent = c.status === 1 ? "In Room" : "Borrowed";
+            document.getElementById("borrowerName").value = "";
+            openModal(borrowReturnModal);
         }
-
-        fetch(`/.netlify/functions/cases/${currentCaseId}/status`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'borrow', borrower_name: borrowerName })
-        })
-            .then(res => res.json())
-            .then(() => {
-                borrowReturnModal.classList.remove('active');
-                fetchCases();
-            })
-            .catch(err => {
-                console.error(err);
-                alert('เกิดข้อผิดพลาด');
-                borrowReturnModal.classList.remove('active');
-            });
     });
 
-    // ✅ ปิด modal เมื่อกดปุ่มยกเลิก
-    document.querySelectorAll('.modal .cancel-button').forEach(btn => {
-        btn.addEventListener('click', () => {
-            btn.closest('.modal').classList.remove('active');
-        });
+    borrowReturnForm.addEventListener("submit", e => {
+        e.preventDefault();
+        const user = document.getElementById("borrowerName").value;
+        const c = cases.find(c => c.id == currentCaseId);
+        c.status = actionType === "borrow" ? 0 : 1;
+        c.user = user;
+        c.date = new Date().toLocaleDateString("th-TH");
+        saveCases();
+        closeModal(borrowReturnModal);
     });
 
-    // ✅ ปิด modal เมื่อกดปุ่มปิด (×)
-    document.querySelectorAll('.modal .close-button').forEach(btn => {
-        btn.addEventListener('click', () => {
-            btn.closest('.modal').classList.remove('active');
-        });
+    adminPasswordForm.addEventListener("submit", e => {
+        e.preventDefault();
+        const password = document.getElementById("adminPasswordInput").value;
+        if (password === "admin123") {
+            // ทำสิ่งที่ต้องการเมื่อรหัสผ่านถูกต้อง
+            closeModal(adminPasswordModal);
+        } else {
+            alert("รหัสผ่านไม่ถูกต้อง");
+        }
     });
+
+    renderCases();
 });
