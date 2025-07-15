@@ -262,8 +262,13 @@ header p {
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     width: 90%;
     max-width: 500px;
-    position: relative;
     box-sizing: border-box;
+
+    /* 👇 แก้ให้ตรงกลางเป๊ะ */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .close-button {
