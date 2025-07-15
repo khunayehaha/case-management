@@ -4,6 +4,7 @@
   command = "npm install" # This will install dependencies for both frontend (if any) and functions
 
 [functions]
-  node_bundler = "esbuild" # Use esbuild for faster and more efficient bundling
-  external_node_modules = ["firebase-admin"] # Explicitly tell Netlify to bundle firebase-admin
-
+  node_bundler = "esbuild"
+  external_node_modules = ["firebase-admin"]
+  directory = "api"
+  included_files = ["api/cases.cjs", "package.json", "node_modules/**"]
