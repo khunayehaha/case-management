@@ -140,6 +140,23 @@ header p {
     font-weight: 600;
 }
 
+/* ✅ จัดกลางคอลัมน์ตามที่ต้องการ */
+#caseTable thead th:nth-child(1),
+#caseTable thead th:nth-child(6),
+#caseTable thead th:nth-child(8),
+#caseTable thead th:nth-child(9),
+#caseTable tbody td:nth-child(1),
+#caseTable tbody td:nth-child(6),
+#caseTable tbody td:nth-child(8),
+#caseTable tbody td:nth-child(9) {
+    text-align: center;
+}
+
+/* ✅ จัดกลางหมายเลขบัญชี */
+#caseTable tbody td:nth-child(2) {
+    text-align: center;
+}
+
 #caseTable tbody tr {
     border-bottom: 1px solid var(--border-color);
 }
@@ -184,7 +201,7 @@ header p {
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
-    justify-content: flex-start;
+    justify-content: center;
 }
 
 .action-buttons button {
@@ -230,16 +247,17 @@ header p {
     font-size: 1.1em;
 }
 
+/* ✅ Modal ปรับให้กึ่งกลาง */
 .modal {
     display: none;
     position: fixed;
-    z-index: 1;
+    z-index: 1000;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    overflow: auto;
     background-color: rgba(0,0,0,0.4);
+    display: flex;
     justify-content: center;
     align-items: center;
 }
@@ -250,7 +268,6 @@ header p {
 
 .modal-content {
     background-color: #fefefe;
-    margin: auto;
     padding: 30px;
     border-radius: 10px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
@@ -292,7 +309,8 @@ header p {
 }
 
 .modal form input[type="text"],
-.modal form input[type="number"] {
+.modal form input[type="number"],
+.modal form input[type="password"] {
     width: calc(100% - 22px);
     padding: 10px;
     margin-bottom: 15px;
