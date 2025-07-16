@@ -37,6 +37,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const adminPasswordForm = document.getElementById("adminPasswordForm");
     const caseList = document.getElementById("caseList");
 
+    const searchInput = document.getElementById("searchInput");
+    const searchBtn = document.getElementById("searchBtn");
+    const clearSearchBtn = document.getElementById("clearSearchBtn");
+
     let currentCaseId = null;
     let actionType = "";
     let pendingAction = "";
@@ -204,5 +208,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
         await setDoc(doc(casesRef, currentCaseId), c);
         closeModal(borrowReturnModal);
+    });
+
+    // 🔍 ฟังก์ชันค้นหา
+    function filterCases(keyword) {
+        const rows = caseList.querySelectorAll("tr");
+        rows.forEach(row => {
+            const nameCell = row.querySelector("td:first-child");
+            if (nameCell) {
+                const name = nameCell.textContent.trim();
+                if (name.includes(keyword)) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            }
+        });
+    }
+
+    searchBtn.addEventListener("click", () => {
+        const keyword = searchInput.value.trim();
+        filterCases(keyword);
+    });
+
+    clearSearchBtn.addEventListener("click", () => {
+        searchInput.value = "";
+        filterCases("");
     });
 });
