@@ -18,6 +18,7 @@
         <button id="addCaseBtn" class="primary-button">
             + เพิ่มแฟ้มคดีใหม่
         </button>
+        <button id="importFarmersBtn" class="secondary-button">Import ข้อมูลชาวไร่</button>
         <div class="search-bar">
             <input type="text" id="searchInput" placeholder="ค้นหาชื่อ, เลขบัญชี, ตู้, ชั้น, ลำดับ...">
             <button id="searchBtn" class="secondary-button">ค้นหา</button>
@@ -107,6 +108,21 @@
                 <input type="password" id="adminPasswordInput" required>
                 <div class="button-group">
                     <button type="submit" id="confirmAdminPasswordBtn" class="confirm-button">ยืนยัน</button>
+                    <button type="button" class="cancel-button">ยกเลิก</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="importFarmersModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>ยืนยันรหัสผ่านเพื่อ Import ข้อมูลชาวไร่</h2>
+            <form id="importFarmersForm">
+                <label for="importPasswordInput">รหัสผ่าน:</label>
+                <input type="password" id="importPasswordInput" required>
+                <div class="button-group">
+                    <button type="submit" class="confirm-button">ยืนยัน</button>
                     <button type="button" class="cancel-button">ยกเลิก</button>
                 </div>
             </form>

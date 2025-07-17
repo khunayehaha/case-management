@@ -235,4 +235,68 @@ document.addEventListener("DOMContentLoaded", () => {
         searchInput.value = "";
         filterCases("");
     });
+
+    // --- Import Farmers Modal Logic ---
+    const importFarmersBtn = document.getElementById('importFarmersBtn');
+    const importFarmersModal = document.getElementById('importFarmersModal');
+    const importFarmersForm = document.getElementById('importFarmersForm');
+    const importPasswordInput = document.getElementById('importPasswordInput');
+
+    if (importFarmersBtn) {
+        importFarmersBtn.addEventListener('click', () => {
+            importPasswordInput.value = '';
+            importFarmersModal.style.display = 'block';
+        });
+    }
+    if (importFarmersModal) {
+        importFarmersModal.querySelector('.close-button').addEventListener('click', () => {
+            importFarmersModal.style.display = 'none';
+        });
+        importFarmersForm.querySelector('.cancel-button').addEventListener('click', () => {
+            importFarmersModal.style.display = 'none';
+        });
+    }
+    if (importFarmersForm) {
+        importFarmersForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (importPasswordInput.value === 'lawsugar6') {
+                await importFarmers();
+                importFarmersModal.style.display = 'none';
+            } else {
+                alert('รหัสผ่านไม่ถูกต้อง');
+            }
+        });
+    }
+
+    // --- Import Farmers Function ---
+    async function importFarmers() {
+        const farmers = [
+            // ... (array รายชื่อทั้งหมดที่ผู้ใช้ให้ไว้ใน import-farmers.js)
+            { account: '218364', name: 'นายทรัพย์  บรรเทิงใจ', cabinet: '3', shelf: '1', sequence: '1' },
+            { account: '233240', name: 'นางสุรีย์พร คันทะชัย', cabinet: '3', shelf: '1', sequence: '2' },
+            // ... (ใส่รายชื่อทั้งหมดที่ผู้ใช้ให้ไว้ต่อจากนี้)
+            // ... (รายชื่อที่เพิ่มใหม่ทั้งหมด)
+        ];
+        const casesRef = collection(db, "cases");
+        let success = 0, fail = 0;
+        for (const f of farmers) {
+            try {
+                await addDoc(casesRef, {
+                    name: f.name,
+                    account: f.account,
+                    cabinet: f.cabinet,
+                    shelf: f.shelf,
+                    sequence: f.sequence,
+                    status: "อยู่ในห้องสำนวน",
+                    user: "",
+                    date: ""
+                });
+                success++;
+            } catch (e) {
+                fail++;
+                console.error("เพิ่มข้อมูลล้มเหลว:", f, e);
+            }
+        }
+        alert(`เพิ่มข้อมูลสำเร็จ ${success} รายการ, ล้มเหลว ${fail} รายการ`);
+    }
 });
