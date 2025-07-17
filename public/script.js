@@ -273,7 +273,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // --- Import Farmers Function ---
     async function importFarmers() {
-        // หมายเหตุ: ถ้ากด import ซ้ำ ข้อมูลจะถูกเพิ่มซ้ำใน Firestore เว้นแต่ account ซ้ำ จะข้าม
+        // ใช้ setDoc โดยใช้ account เป็น document id เพื่อป้องกันข้อมูลซ้ำ (ถ้ามีอยู่แล้วจะ update ทับ)
         const farmers = [
             { account: '218364', name: 'นายทรัพย์  บรรเทิงใจ', cabinet: '3', shelf: '1', sequence: '1' },
             { account: '233240', name: 'นางสุรีย์พร คันทะชัย', cabinet: '3', shelf: '1', sequence: '2' },
@@ -512,18 +512,10 @@ document.addEventListener("DOMContentLoaded", () => {
             { account: '160371', name: 'นางสกุลรัตน์  ช้อนรัมย์', cabinet: '4', shelf: '1', sequence: '39' },
         ];
         const casesRef = collection(db, "cases");
-        let success = 0, fail = 0, skipped = 0;
+        let success = 0, fail = 0;
         for (const f of farmers) {
             try {
-                // ตรวจสอบว่ามี account นี้อยู่แล้วหรือยัง
-                const q = query(casesRef, where("account", "==", f.account));
-                const querySnapshot = await getDocs(q);
-                if (!querySnapshot.empty) {
-                    // ข้ามถ้ามีอยู่แล้ว
-                    skipped++;
-                    continue;
-                }
-                await addDoc(casesRef, {
+                await setDoc(doc(casesRef, f.account), {
                     name: f.name,
                     account: f.account,
                     cabinet: f.cabinet,
@@ -532,13 +524,32 @@ document.addEventListener("DOMContentLoaded", () => {
                     status: "อยู่ในห้องสำนวน",
                     user: "",
                     date: ""
-                });
+                }, { merge: false });
                 success++;
             } catch (e) {
                 fail++;
-                console.error("เพิ่มข้อมูลล้มเหลว:", f, e);
+                console.error("เพิ่ม/อัปเดตข้อมูลล้มเหลว:", f, e);
             }
         }
-        alert(`เพิ่มข้อมูลสำเร็จ ${success} รายการ, ข้าม ${skipped} รายการที่มีอยู่แล้ว, ล้มเหลว ${fail} รายการ`);
+        alert(`เพิ่มหรืออัปเดตข้อมูลสำเร็จ ${success} รายการ, ล้มเหลว ${fail} รายการ`);
+    }
+
+    // ฟังก์ชันลบข้อมูลซ้ำใน Firestore (เหลือแค่ 1 document ต่อ account)
+    window.removeDuplicateAccounts = async function() {
+        const casesRef = collection(db, "cases");
+        const snapshot = await getDocs(casesRef);
+        const seen = {};
+        let deleted = 0;
+        for (const docSnap of snapshot.docs) {
+            const data = docSnap.data();
+            if (seen[data.account]) {
+                // ถ้า account นี้เคยเจอแล้ว ให้ลบ document นี้
+                await deleteDoc(doc(casesRef, docSnap.id));
+                deleted++;
+            } else {
+                seen[data.account] = true;
+            }
+        }
+        alert(`ลบข้อมูลซ้ำออกแล้ว ${deleted} รายการ`);
     }
 });
