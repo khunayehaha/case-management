@@ -18,13 +18,13 @@ import {
 
 // 🔗 Firebase Config
 const firebaseConfig = {
-    apiKey: "AIzaSyD2Dr6eWDBn1NQkymaiBPWAtC7wHc0L2nQ",
-    authDomain: "sugarlaw1.firebaseapp.com",
-    projectId: "sugarlaw1",
-    storageBucket: "sugarlaw1.appspot.com",
-    messagingSenderId: "1044664723794",
-    appId: "1:1044664723794:web:edfaa67d9452d2618bb28b",
-    measurementId: "G-TBMSM6ZT8R"
+    apiKey: "AIzaSyAvAjc_sB_9TjrTrZR4DPIcDQYzWm2QnW4",
+    authDomain: "case-management-system99.firebaseapp.com",
+    projectId: "case-management-system99",
+    storageBucket: "case-management-system99.appspot.com",
+    messagingSenderId: "799325568077",
+    appId: "1:799325568077:web:3e6b3a8fb876df4817f004",
+    measurementId: "G-MX12ND9DWT"
 };
 
 const app = initializeApp(firebaseConfig);
